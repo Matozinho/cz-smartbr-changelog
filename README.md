@@ -1,7 +1,7 @@
 # cz-smartbr-changelog
 
 Status:
-[![npm version](https://img.shields.io/npm/v/cz-conventional-changelog.svg?style=flat-square)](https://www.npmjs.org/package/cz-conventional-changelog)
+[![npm version](https://img.shields.io/npm/v/cz-smartbr-changelog.svg?style=flat-square)](https://www.npmjs.com/package/cz-smartbr-changelog)
 
 inspired by [cz-conventional-changelog](https://github.com/commitizen/cz-conventional-changelog)
 
@@ -25,3 +25,26 @@ Install [commitizen](https://github.com/commitizen/cz-cli#making-your-repo-commi
 npm install commitizen -g
 ```
 ### Adding to the project
+
+Install in your project with npm:
+
+```bash
+npm i cz-smartbr-changelog --save-dev #development dependency
+```
+
+or with yarn:
+
+```bash
+yarn add cz-smartbr-changelog -D #development dependency
+```
+
+In your `package.json`, add:
+
+```json5
+"config": {
+    # ... other dependencies
+    "commitizen": {
+      "path": "./node_modules/cz-smartbr-changelog"
+    }
+  }
+```
