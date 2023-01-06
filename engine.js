@@ -13,7 +13,7 @@ var filter = function(array) {
 
 var headerLength = function(answers) {
   return (
-    answers.type.length + 2 + (answers.scope ? answers.scope.length + 2 : 0)
+    answers.jiraCode.length + 2 + (answers.scope ? answers.scope.length + 2 : 0)
   );
 };
 
@@ -23,7 +23,10 @@ var maxSummaryLength = function(options, answers) {
 
 var filterSubject = function(subject, disableSubjectLowerCase) {
   subject = subject.trim();
-  if (!disableSubjectLowerCase && subject.charAt(0).toLowerCase() !== subject.charAt(0)) {
+  if (
+    !disableSubjectLowerCase &&
+    subject.charAt(0).toLowerCase() !== subject.charAt(0)
+  ) {
     subject =
       subject.charAt(0).toLowerCase() + subject.slice(1, subject.length);
   }
@@ -69,49 +72,48 @@ module.exports = function(options) {
       // collection library if you prefer.
       cz.prompt([
         {
-          type: 'list',
-          name: 'type',
-          message: "Select the type of change that you're committing:",
-          choices: choices,
-          default: options.defaultType
+          type: 'input',
+          name: 'jiraCode',
+          message: 'Insira o código do Jira:',
+          validate: function(jiraCode) {
+            return jiraCode.length == 0 ? 'Código do Jira é obrigatório' : true;
+          }
         },
         {
           type: 'input',
           name: 'scope',
-          message:
-            'What is the scope of this change (e.g. component or file name): (press enter to skip)',
-          default: options.defaultScope,
-          filter: function(value) {
-            return options.disableScopeLowerCase
-              ? value.trim()
-              : value.trim().toLowerCase();
-          }
+          message: 'Insira o escopo da alteração (opcional)'
         },
         {
           type: 'input',
           name: 'subject',
           message: function(answers) {
             return (
-              'Write a short, imperative tense description of the change (max ' +
+              'Insira o título do commit (máximo de ' +
               maxSummaryLength(options, answers) +
-              ' chars):\n'
+              ' caracteres):\n'
             );
           },
           default: options.defaultSubject,
           validate: function(subject, answers) {
-            var filteredSubject = filterSubject(subject, options.disableSubjectLowerCase);
+            var filteredSubject = filterSubject(
+              subject,
+              options.disableSubjectLowerCase
+            );
             return filteredSubject.length == 0
-              ? 'subject is required'
+              ? 'Título do commit é obrigatório'
               : filteredSubject.length <= maxSummaryLength(options, answers)
               ? true
-              : 'Subject length must be less than or equal to ' +
+              : 'Título do commit deve conter menos de ' +
                 maxSummaryLength(options, answers) +
-                ' characters. Current length is ' +
-                filteredSubject.length +
-                ' characters.';
+                ' caracteres. Quantidade atual de caracteres é de  ' +
+                filteredSubject.length;
           },
           transformer: function(subject, answers) {
-            var filteredSubject = filterSubject(subject, options.disableSubjectLowerCase);
+            var filteredSubject = filterSubject(
+              subject,
+              options.disableSubjectLowerCase
+            );
             var color =
               filteredSubject.length <= maxSummaryLength(options, answers)
                 ? chalk.green
@@ -125,68 +127,68 @@ module.exports = function(options) {
         {
           type: 'input',
           name: 'body',
-          message:
-            'Provide a longer description of the change: (press enter to skip)\n',
+          message: 'Insira a decrição do commit: (opcional)\n',
           default: options.defaultBody
-        },
-        {
-          type: 'confirm',
-          name: 'isBreaking',
-          message: 'Are there any breaking changes?',
-          default: false
-        },
-        {
-          type: 'input',
-          name: 'breakingBody',
-          default: '-',
-          message:
-            'A BREAKING CHANGE commit requires a body. Please enter a longer description of the commit itself:\n',
-          when: function(answers) {
-            return answers.isBreaking && !answers.body;
-          },
-          validate: function(breakingBody, answers) {
-            return (
-              breakingBody.trim().length > 0 ||
-              'Body is required for BREAKING CHANGE'
-            );
-          }
-        },
-        {
-          type: 'input',
-          name: 'breaking',
-          message: 'Describe the breaking changes:\n',
-          when: function(answers) {
-            return answers.isBreaking;
-          }
-        },
-
-        {
-          type: 'confirm',
-          name: 'isIssueAffected',
-          message: 'Does this change affect any open issues?',
-          default: options.defaultIssues ? true : false
-        },
-        {
-          type: 'input',
-          name: 'issuesBody',
-          default: '-',
-          message:
-            'If issues are closed, the commit requires a body. Please enter a longer description of the commit itself:\n',
-          when: function(answers) {
-            return (
-              answers.isIssueAffected && !answers.body && !answers.breakingBody
-            );
-          }
-        },
-        {
-          type: 'input',
-          name: 'issues',
-          message: 'Add issue references (e.g. "fix #123", "re #123".):\n',
-          when: function(answers) {
-            return answers.isIssueAffected;
-          },
-          default: options.defaultIssues ? options.defaultIssues : undefined
         }
+        // TODO: talvez inserir alguma validação pra fix/hotfix/breaking-changes
+        // {
+        //   type: 'confirm',
+        //   name: 'isBreaking',
+        //   message: 'Are there any breaking changes?',
+        //   default: false
+        // },
+        // {
+        //   type: 'input',
+        //   name: 'breakingBody',
+        //   default: '-',
+        //   message:
+        //     'A BREAKING CHANGE commit requires a body. Please enter a longer description of the commit itself:\n',
+        //   when: function(answers) {
+        //     return answers.isBreaking && !answers.body;
+        //   },
+        //   validate: function(breakingBody, answers) {
+        //     return (
+        //       breakingBody.trim().length > 0 ||
+        //       'Body is required for BREAKING CHANGE'
+        //     );
+        //   }
+        // },
+        // {
+        //   type: 'input',
+        //   name: 'breaking',
+        //   message: 'Describe the breaking changes:\n',
+        //   when: function(answers) {
+        //     return answers.isBreaking;
+        //   }
+        // },
+
+        // {
+        //   type: 'confirm',
+        //   name: 'isIssueAffected',
+        //   message: 'Does this change affect any open issues?',
+        //   default: options.defaultIssues ? true : false
+        // },
+        // {
+        //   type: 'input',
+        //   name: 'issuesBody',
+        //   default: '-',
+        //   message:
+        //     'If issues are closed, the commit requires a body. Please enter a longer description of the commit itself:\n',
+        //   when: function(answers) {
+        //     return (
+        //       answers.isIssueAffected && !answers.body && !answers.breakingBody
+        //     );
+        //   }
+        // },
+        // {
+        //   type: 'input',
+        //   name: 'issues',
+        //   message: 'Add issue references (e.g. "fix #123", "re #123".):\n',
+        //   when: function(answers) {
+        //     return answers.isIssueAffected;
+        //   },
+        //   default: options.defaultIssues ? options.defaultIssues : undefined
+        // }
       ]).then(function(answers) {
         var wrapOptions = {
           trim: true,
@@ -196,26 +198,32 @@ module.exports = function(options) {
           width: options.maxLineWidth
         };
 
-        // parentheses are only needed when a scope is present
-        var scope = answers.scope ? '(' + answers.scope + ')' : '';
+        // SmartBR commit pattern: (#<task|history-code>)[<scope?>]: <commit-title>
+        const jiraCode = `(#${answers.jiraCode})`;
 
-        // Hard limit this line in the validate
-        var head = answers.type + scope + ': ' + answers.subject;
+        const scope = answers.scope ? `[${answers.scope}]` : '';
 
-        // Wrap these lines at options.maxLineWidth characters
-        var body = answers.body ? wrap(answers.body, wrapOptions) : false;
+        const head = `${jiraCode}${scope}: ${answers.subject}`;
+
+        // TODO: Buscar algum jeito de permitir quebra de linha no corpo do commit (com \ ou outro caractere)
+        const body = answers.body ? wrap(answers.body, wrapOptions) : false;
 
         // Apply breaking change prefix, removing it if already present
-        var breaking = answers.breaking ? answers.breaking.trim() : '';
-        breaking = breaking
-          ? 'BREAKING CHANGE: ' + breaking.replace(/^BREAKING CHANGE: /, '')
-          : '';
-        breaking = breaking ? wrap(breaking, wrapOptions) : false;
+        // var breaking = answers.breaking ? answers.breaking.trim() : '';
+        // breaking = breaking
+        //   ? 'BREAKING CHANGE: ' + breaking.replace(/^BREAKING CHANGE: /, '')
+        //   : '';
+        // breaking = breaking ? wrap(breaking, wrapOptions) : false;
 
-        var issues = answers.issues ? wrap(answers.issues, wrapOptions) : false;
+        // var issues = answers.issues ? wrap(answers.issues, wrapOptions) : false;
 
-        console.log(filter([head, body, breaking, issues]).join('\n\n'));
-        // commit(filter([head, body, breaking, issues]).join('\n\n'));
+        commit(
+          filter([
+            head,
+            body
+            // , breaking, issues 
+          ]).join('\n\n')
+        );
       });
     }
   };
