@@ -1,7 +1,7 @@
 {
-  "name": "cz-conventional-changelog",
-  "version": "0.0.1",
-  "description": "Commitizen adapter following the conventional-changelog format.",
+  "name": "cz-smartbr-changelog",
+  "version": "0.0.0",
+  "description": "commitizen adapter for Smart Br commit messages pattern.",
   "main": "index.js",
   "scripts": {
     "commit": "git-cz",
@@ -9,16 +9,16 @@
     "format": "prettier --write *.js",
     "semantic-release": "semantic-release"
   },
-  "homepage": "https://github.com/commitizen/cz-conventional-changelog",
+  "homepage": "https://github.com/Matozinho/cz-smartbr-changelog",
   "repository": {
     "type": "git",
-    "url": "https://github.com/commitizen/cz-conventional-changelog.git"
+    "url": "https://github.com/Matozinho/cz-smartbr-changelog.git"
   },
   "engineStrict": true,
   "engines": {
     "node": ">= 10"
   },
-  "author": "Jim Cummins <jimthedev@gmail.com>",
+  "author": "Felipi Lima Matozinho <felipi.matozinho2015@gmail.com>",
   "license": "MIT",
   "dependencies": {
     "chalk": "^3.0.0",
