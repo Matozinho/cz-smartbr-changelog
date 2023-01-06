@@ -214,7 +214,8 @@ module.exports = function(options) {
 
         var issues = answers.issues ? wrap(answers.issues, wrapOptions) : false;
 
-        commit(filter([head, body, breaking, issues]).join('\n\n'));
+        console.log(filter([head, body, breaking, issues]).join('\n\n'));
+        // commit(filter([head, body, breaking, issues]).join('\n\n'));
       });
     }
   };
