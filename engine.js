@@ -176,16 +176,16 @@ module.exports = function(options) {
         // TODO: Buscar algum jeito de permitir quebra de linha no corpo do commit (com \ ou outro caractere)
         const wrapBody = body ? wrap(body, wrapOptions) : false;
 
-        console.log(head);
-        console.log(wrapBody);
+        // console.log(head);
+        // console.log(wrapBody);
 
-        // commit(
-        //   filter([
-        //     head,
-        //     wrapBody
-        //     // , breaking, issues
-        //   ]).join('\n\n')
-        // );
+        commit(
+          filter([
+            head,
+            wrapBody
+            // , breaking, issues
+          ]).join('\n\n')
+        );
       });
     }
   };
