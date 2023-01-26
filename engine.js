@@ -74,10 +74,27 @@ module.exports = function(options) {
         {
           type: 'input',
           name: 'jiraCode',
-          message: 'Insira o código do Jira:',
-          validate: function(jiraCode) {
-            return jiraCode.length == 0 ? 'Código do Jira é obrigatório' : true;
+          message: 'Insira o código do Jira: (opcional)',
+          prefix: '📝',
+          transformer: function(value) {
+            // Has prefix SEAL-?
+            if (value.startsWith('SEAL-')) {
+              return value;
+            }
+
+            // Add the SEAL- prefix
+            return `SEAL-${value}`;
           }
+        },
+        {
+          type: 'list',
+          name: 'type',
+          message: 'Selecione o tipo de mudança que você está enviando:',
+          choices: [
+            'feat: ⚙️ Nova funcionalidade',
+            'bugfix: 🐛 Correção de bug',
+            'hotfix: 🔥 Correção de bug crítico'
+          ]
         },
         {
           type: 'input',
@@ -131,64 +148,6 @@ module.exports = function(options) {
           default: options.defaultBody
         }
         // TODO: talvez inserir alguma validação pra fix/hotfix/breaking-changes
-        // {
-        //   type: 'confirm',
-        //   name: 'isBreaking',
-        //   message: 'Are there any breaking changes?',
-        //   default: false
-        // },
-        // {
-        //   type: 'input',
-        //   name: 'breakingBody',
-        //   default: '-',
-        //   message:
-        //     'A BREAKING CHANGE commit requires a body. Please enter a longer description of the commit itself:\n',
-        //   when: function(answers) {
-        //     return answers.isBreaking && !answers.body;
-        //   },
-        //   validate: function(breakingBody, answers) {
-        //     return (
-        //       breakingBody.trim().length > 0 ||
-        //       'Body is required for BREAKING CHANGE'
-        //     );
-        //   }
-        // },
-        // {
-        //   type: 'input',
-        //   name: 'breaking',
-        //   message: 'Describe the breaking changes:\n',
-        //   when: function(answers) {
-        //     return answers.isBreaking;
-        //   }
-        // },
-
-        // {
-        //   type: 'confirm',
-        //   name: 'isIssueAffected',
-        //   message: 'Does this change affect any open issues?',
-        //   default: options.defaultIssues ? true : false
-        // },
-        // {
-        //   type: 'input',
-        //   name: 'issuesBody',
-        //   default: '-',
-        //   message:
-        //     'If issues are closed, the commit requires a body. Please enter a longer description of the commit itself:\n',
-        //   when: function(answers) {
-        //     return (
-        //       answers.isIssueAffected && !answers.body && !answers.breakingBody
-        //     );
-        //   }
-        // },
-        // {
-        //   type: 'input',
-        //   name: 'issues',
-        //   message: 'Add issue references (e.g. "fix #123", "re #123".):\n',
-        //   when: function(answers) {
-        //     return answers.isIssueAffected;
-        //   },
-        //   default: options.defaultIssues ? options.defaultIssues : undefined
-        // }
       ]).then(function(answers) {
         var wrapOptions = {
           trim: true,
@@ -198,32 +157,35 @@ module.exports = function(options) {
           width: options.maxLineWidth
         };
 
+        const { jiraCode, scope, type, subject, body } = answers;
+        const typeEmoji = type
+          .split(':')[1]
+          .trim()
+          .split(' ')[0];
+
+        let task = '';
+        if (jiraCode) {
+          task = `(#SEAL-${jiraCode})`;
+        }
+
         // SmartBR commit pattern: (#<task|history-code>)[<scope?>]: <commit-title>
-        const jiraCode = `(#${answers.jiraCode})`;
-
-        const scope = answers.scope ? `[${answers.scope}]` : '';
-
-        const head = `${jiraCode}${scope}: ${answers.subject}`;
+        const head = `${task}[${typeEmoji}]${
+          scope ? `[${scope}]` : ''
+        }: ${subject}`;
 
         // TODO: Buscar algum jeito de permitir quebra de linha no corpo do commit (com \ ou outro caractere)
-        const body = answers.body ? wrap(answers.body, wrapOptions) : false;
+        const wrapBody = body ? wrap(body, wrapOptions) : false;
 
-        // Apply breaking change prefix, removing it if already present
-        // var breaking = answers.breaking ? answers.breaking.trim() : '';
-        // breaking = breaking
-        //   ? 'BREAKING CHANGE: ' + breaking.replace(/^BREAKING CHANGE: /, '')
-        //   : '';
-        // breaking = breaking ? wrap(breaking, wrapOptions) : false;
+        console.log(head);
+        console.log(wrapBody);
 
-        // var issues = answers.issues ? wrap(answers.issues, wrapOptions) : false;
-
-        commit(
-          filter([
-            head,
-            body
-            // , breaking, issues 
-          ]).join('\n\n')
-        );
+        // commit(
+        //   filter([
+        //     head,
+        //     wrapBody
+        //     // , breaking, issues
+        //   ]).join('\n\n')
+        // );
       });
     }
   };
